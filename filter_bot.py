@@ -76,12 +76,12 @@ async def on_message(message):
                         await client.send_message(message.channel, message.author.name + " tagged:" + mention_msg)
                         print(message.author.name + " tagged:" + mention_msg)
                         await client.send_message(message.author, private_response + message.content + "*")
-                        print("Redirected " + message.author.name + ": " + private_response + message.content + "*")
+                        print(message.author.name + ": " + message.content)
                         await client.delete_message(message)
                 else:
                     await client.delete_message(message)
                     await client.send_message(message.author, private_response + message.content + "*")
-                    print("Redirected " + message.author.name + ": " + private_response + message.content + "*")
+                    print(message.author.name + ": " + message.content)
 
     except discord.errors.Forbidden:
         return
