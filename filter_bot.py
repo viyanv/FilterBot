@@ -27,8 +27,8 @@ async def get_image(url):
 async def on_message(message):
 
     if message.author.name == client.user.name or message.channel.type.name == 'private':
-        print(message.channel)
-        print("Blocking...")
+        #print(message.channel)
+        #print("Blocking...")
         # print("Tę wiadomość: " + message.content + " wysłał: " + message.author.name)
         # print("message.author: " + message.author.name)
         # print("client.user: " + client.user.name)
@@ -36,7 +36,7 @@ async def on_message(message):
 
   #  print(message.author.name)
   #  print(client.user.name)
-    print(message.channel)
+    #print(message.channel)
 
     #print(message.content)
    # print(client.user)
@@ -62,8 +62,10 @@ async def on_message(message):
 
                     if len(message.mentions) > 0:
                         await client.send_message(message.channel, message.author.name + " tagged:" + mention_msg)
+                        print(message.author.name + " tagged:" + mention_msg)
                     else:
                         await client.send_message(message.channel, message.author.name + " posted:")
+                        print(message.author.name + " posted.")
 
                     await client.send_file(message.channel, "img.png")
                     await client.send_message(message.author, private_response + message.content + "*")
@@ -72,11 +74,14 @@ async def on_message(message):
                 if len(message.mentions) > 0:
                     if len(contents_wo_mentions) > 0:
                         await client.send_message(message.channel, message.author.name + " tagged:" + mention_msg)
+                        print(message.author.name + " tagged:" + mention_msg)
                         await client.send_message(message.author, private_response + message.content + "*")
+                        print("Redirected " + message.author + ": " + private_response + message.content + "*")
                         await client.delete_message(message)
                 else:
                     await client.delete_message(message)
                     await client.send_message(message.author, private_response + message.content + "*")
+                    print("Redirected " + message.author + ": " + private_response + message.content + "*")
 
     except discord.errors.Forbidden:
         return
