@@ -4,27 +4,23 @@ FilterBot is used to remove non-image messages from Discord guild channel.
 
 import discord
 from discord.ext import commands
-import aiohttp
 
 Client = discord.Client()
 client = commands.Bot(command_prefix="?")
 
-private_response = "Na tym kanale możesz wysyłać tylko obrazy i @wzmianki! " \
-                   "Wyślij swoją wiadomość gdzieś indziej:\n\n*"
+
+async def strip_msg(contents, mentions):
+    contents_l = contents.split(" ")
+    mentions_l = [""]
+    for elem in mentions:
+        mentions_l.append(elem.mention)
+    return [x for x in contents_l if x not in mentions_l]
+
 
 @client.event
 async def on_ready():
     """Bot behaviour on ready state."""
     print("Bot is ready!")
-
-
-async def get_image(url):
-    """Downloads image from specified URL"""
-    with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            img = await resp.read()
-            with open("img.png", "wb") as file:
-                file.write(img)
 
 
 @client.event
@@ -34,52 +30,13 @@ async def on_message(message):
         return
 
     try:
-        if message.content:
-
-            contents = message.content.split(" ")
-            mentions_list = [""]
-            mention_msg = ""
+        if message.content and not message.attachments:
             if message.mentions:
-                for mention_item in message.mentions:
-                    mentions_list.append(mention_item.mention)
-                    mention_msg += " " + mention_item.mention
-            contents_wo_mentions = [x for x in contents if x not in mentions_list]
-
-            if message.attachments:
-                if contents_wo_mentions:
-                    attachment = message.attachments[0]['url']
-                    await get_image(attachment)
-
+                stripped = await strip_msg(message.content, message.mentions)
+                if stripped:
                     await client.delete_message(message)
-
-                    if message.mentions:
-                        await client.send_message(message.channel,
-                                                  message.author.name + " tagged:" + mention_msg)
-                        print(message.author.name + " tagged:" + mention_msg)
-                    else:
-                        await client.send_message(message.channel, message.author.name + " posted:")
-                        print(message.author.name + " posted.")
-
-                    await client.send_file(message.channel, "img.png")
-                    await client.send_message(message.author,
-                                              private_response + message.content + "*")
-
             else:
-                if message.mentions:
-                    if contents_wo_mentions:
-                        await client.send_message(message.channel,
-                                                  message.author.name + " tagged:" + mention_msg)
-                        print(message.author.name + " tagged:" + mention_msg)
-                        await client.send_message(message.author,
-                                                  private_response + message.content + "*")
-                        print(message.author.name + ": " + message.content)
-                        await client.delete_message(message)
-                else:
-                    await client.delete_message(message)
-                    await client.send_message(message.author,
-                                              private_response + message.content + "*")
-                    print(message.author.name + ": " + message.content)
-
+                await client.delete_message(message)
     except discord.errors.Forbidden:
         return
 
