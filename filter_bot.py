@@ -4,12 +4,14 @@ FilterBot is used to remove non-image messages from Discord guild channel.
 
 import discord
 from discord.ext import commands
+from time import ctime
 
 Client = discord.Client()
 client = commands.Bot(command_prefix="?")
 
 
 async def strip_msg(contents, mentions):
+    """Strips contents of message from mentions."""
     contents_l = contents.split(" ")
     mentions_l = [""]
     for elem in mentions:
@@ -25,12 +27,13 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    """Bot behaviour on receiving a message."""
+    """Bot behaviour upon receiving a message."""
     if message.author.name == client.user.name or message.channel.type.name == 'private':
         return
 
     try:
         if message.content and not message.attachments:
+            print(ctime(), message.author.name, message.content)
             if message.mentions:
                 stripped = await strip_msg(message.content, message.mentions)
                 if stripped:
